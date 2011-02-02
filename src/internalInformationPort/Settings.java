@@ -28,13 +28,20 @@ final class Settings {
     	
     	try {
     		
-			properties.load(new FileInputStream("Properties.txt"));
+    		//TODO: path specification
+			properties.load(new FileInputStream("/Users/daniel/Programmierung/Master/mixPlatform/bin/Properties.txt"));
 			
 		} catch(IOException e) {
 			
-			LOGGER.severe(	"Property file could not be loaded!"
+			//TODO: path specification
+			//when properties could not be loaded, there is no way to use the logger as it is not instantiated...
+			System.out.println("Property file could not be loaded! "
 							+e.getMessage()
 							);
+			
+			/*LOGGER.severe(	"Property file could not be loaded!"
+							+e.getMessage()
+							);*/
 
 	    	System.exit(1);
 	    	
@@ -111,7 +118,12 @@ final class Settings {
 					properties.getProperty("CRYPTO_PROVIDER")
 					);
 			
+			System.out.println("OK");
+			
 			int interMixBlockSize = tempCipher.getBlockSize();
+			
+
+			
 			tempCipher = null;
 			
 			properties.setProperty(	"INTER_MIX_BLOCK_SIZE", 
@@ -119,10 +131,14 @@ final class Settings {
 									);
 			
 		} catch (Exception e) {
-
-			LOGGER.severe(	"(Settings) Couldn't detect block size for inter-" 
-							+"mix cryptography"
+			
+			System.out.println("(Settings) Couldn't detect block size for inter-" 
+							+"mix cryptography" + e.getMessage()
 							);
+
+			/*LOGGER.severe(	"(Settings) Couldn't detect block size for inter-" 
+							+"mix cryptography"
+							);*/
 			
 			System.exit(1);
 			
