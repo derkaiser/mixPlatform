@@ -107,8 +107,7 @@ final class LogFileGenerator {
 		try {
 			
 			// generate file name
-			//TODO: path specification
-			String filename = "/Users/daniel/Programmierung/Master/mixPlatform/bin/logfiles/logfile-";
+			String filename = "logfiles/logfile-";
 			Calendar calendar = Calendar.getInstance();
 			filename += calendar.get(Calendar.HOUR_OF_DAY);
 			filename += calendar.get(Calendar.MINUTE);
@@ -128,10 +127,12 @@ final class LogFileGenerator {
 			
 		} catch (IOException e) {
 
-			e.printStackTrace();
+			//e.printStackTrace();
+			//TODO: †berarbeitung Fehlermeldung
+			System.out.println("The path 'logfiles' is not existing or could not be read.");
 			System.exit(1);
 			
-		} 
+		}
 		
 		logger.addHandler(fileHandler);
 		
