@@ -44,5 +44,10 @@ public interface OutputStrategyInterface {
 	 * 				to the underlying output strategy.
 	 */
 	public void addReply(Reply reply);
+
+	/**
+	 * Initialize the component...
+	 */
+	public void initialize();
 	
 }
