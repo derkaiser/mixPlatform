@@ -2,7 +2,7 @@ package outputStrategy;
 
 
 import java.util.logging.Logger;
-
+import ifaceloading.OutputStrategyLoader;
 import inputOutputHandler.InputOutputHandlerController;
 import internalInformationPort.InternalInformationPortController;
 import message.Reply;
@@ -26,7 +26,14 @@ import architectureInterface.OutputStrategyInterface;
 public class OutputStrategyController implements OutputStrategyInterface {
 	
 	//TODO: Beschreibung hinzufügen; hier kann später auch eine andere Klasse eingebunden werden
-	private BatchController batchController;
+	//private BatchController batchController;
+	private OutputStrategyInterface outputStrategyIF;
+	
+	/** 
+	 * Reference on component <code>InputOutputHandler</code>. 
+	 * Used to bypass collected messages, when output criterion fulfilled.
+	 */
+	private InputOutputHandlerController inputOutputHandler;
 	
 	/** 
 	 * Reference on component <code>InternalInformationPort</code>. 
@@ -48,10 +55,15 @@ public class OutputStrategyController implements OutputStrategyInterface {
 	 */
 	public void initialize(InputOutputHandlerController inputOutputHandler) {
 		
-		batchController = new BatchController();
+		//TODO: relativen Pfad einführen
+		outputStrategyIF = OutputStrategyLoader.getClass( "/Users/daniel/Programmierung/Master/mixPlatformComponents/bin/", "outputStrategy.BatchController" );
 		
-		batchController.initialize(inputOutputHandler);
-		LOGGER.fine("Batchcontroller... initialized");
+		//batchController = new BatchController();
+		
+		this.inputOutputHandler = inputOutputHandler;
+		
+		outputStrategyIF.initialize();
+		LOGGER.fine("Controller... initialized");
 		
 	}
 
@@ -68,7 +80,7 @@ public class OutputStrategyController implements OutputStrategyInterface {
 	 */
 	@Override
 	public void addRequest(Request request) {
-		batchController.addRequest(request);
+		outputStrategyIF.addRequest(request);
 	}
 	
 	
@@ -84,7 +96,7 @@ public class OutputStrategyController implements OutputStrategyInterface {
 	 */
 	@Override
 	public void addReply(Reply reply) {
-		batchController.addReply(reply);
+		outputStrategyIF.addReply(reply);
 	}
 	
 }
