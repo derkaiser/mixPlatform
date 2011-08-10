@@ -107,7 +107,8 @@ final class LogFileGenerator {
 		try {
 			
 			// generate file name
-			String filename = "logfiles/logfile-";
+			//TODO: path specification
+			String filename = "/Users/daniel/Programmierung/Master/mixPlatform/bin/logfiles/logfile-";
 			Calendar calendar = Calendar.getInstance();
 			filename += calendar.get(Calendar.HOUR_OF_DAY);
 			filename += calendar.get(Calendar.MINUTE);
