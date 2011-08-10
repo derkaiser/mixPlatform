@@ -602,6 +602,8 @@ final class PreviousMixConnectionHandler extends Thread {
 					byte[] sizeAsArray = 
 						Arrays.copyOfRange(blockWithHeader, 1, 5);
 					
+					//TODO: Batchsizemessage generieren und dann in Batchklasse prüfen, ob es eine Batchsizemessage ist und entsprechend der (alten)
+					//Methode behandeln.
 					outputStrategy.setBatchSize(
 							Util.byteArrayToInt(sizeAsArray)
 							);
