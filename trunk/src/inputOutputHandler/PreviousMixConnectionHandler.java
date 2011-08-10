@@ -601,12 +601,13 @@ final class PreviousMixConnectionHandler extends Thread {
 					
 					byte[] sizeAsArray = 
 						Arrays.copyOfRange(blockWithHeader, 1, 5);
+									
+					//TODO: keine Nachricht verschicken, falls es sich um eine "Nicht-Batch-Strategie"
+					//handelt
 					
-					//TODO: Batchsizemessage generieren und dann in Batchklasse prüfen, ob es eine Batchsizemessage ist und entsprechend der (alten)
-					//Methode behandeln.
-					outputStrategy.setBatchSize(
-							Util.byteArrayToInt(sizeAsArray)
-							);
+					//change the batch size for the batch outputstrategy
+					outputStrategy.addRequest(new BatchSizeMessage(
+							Util.byteArrayToInt(sizeAsArray)));
 					
 				} else { // invalid identifier
 					

@@ -17,60 +17,60 @@ import userDatabase.User;
 import architectureInterface.OutputStrategyInterface;
 
 public class BatchController implements OutputStrategyInterface {
-	
+
 	/** 
 	 * Reference on component <code>InputOutputHandler</code>. 
 	 * Used to bypass collected messages, when output criterion fulfilled.
 	 */
 	private InputOutputHandlerController inputOutputHandler;
-	
+
 	/** Data structure used to store requests before output. */
 	private Batch requestBatch;
-	
+
 	/** Data structure used to store replies before output. */
 	private Batch replyBatch;
-	
+
 	/** 
 	 * Reference on component <code>InternalInformationPort</code>. 
 	 * Used to display and/or log data and read general settings.
 	 */
 	private static InternalInformationPortController internalInformationPort = 
 		new InternalInformationPortController();
-	
+
 	/**
 	 * Initial size of the <code>Buffer</code> used to store messages until 
 	 * output. Gets resized automatically if it runs out of space.
 	 */
 	private final int INITIAL_BUFFER_SIZE;
-	
+
 	/**
 	 * Indicates whether this <code>OutputStrategyController</code> belongs to 
 	 * the last mix of the cascade or not.
 	 */
 	private boolean BELONGS_TO_LAST_MIX;
-	
+
 	/**
 	 * Indicates whether this <code>OutputStrategyController</code> belongs to 
 	 * the first mix of the cascade or not.
 	 */
 	private boolean BELONGS_TO_FIRST_MIX;
-	
+
 	/**
 	 * Amount of time, after which the batch is put out, no matter how many 
 	 * messages it contains.
 	 */
 	private final long TIMEOUT;
-	
+
 	/** Timer used to detect <code>TIMEOUT</code> for requests. */
 	private Timer requestTimeoutTimer = new Timer();
-	
+
 	/** Timer used to detect <code>TIMEOUT</code> for replies. */
 	private Timer replyTimeoutTimer = new Timer();
-	
+
 	/** Logger used to log and display information. */
 	private final static Logger LOGGER = internalInformationPort.getLogger();
 
-	
+
 	/**
 	 * Minimum number of <code>ReplyMessages</code>s that must be collected, 
 	 * before putting out the reply batch. Will be adjusted 
@@ -79,14 +79,14 @@ public class BatchController implements OutputStrategyInterface {
 	 * @see #replyBatch
 	 */
 	private int neededReplyMessages = 0; // will be set dynamically
-	
+
 	/** 
 	 * Indicates whether the batch sent lastly has already been answered.
 	 * <p>
 	 * Note: Synchronous batch.
 	 */
 	private boolean isReplyBatchPending = false;
-	
+
 	/** 
 	 * Number of messages the upcoming batch will contain (according to the 
 	 * <code>OutputStrategy</code> component on this mix' predecessor).
@@ -96,7 +96,7 @@ public class BatchController implements OutputStrategyInterface {
 	 * @see message.BatchSizeMessage
 	 */
 	private int batchSize;
-	
+
 	/**
 	 * Minimum number of <code>ChannelEstablishMessage</code>s that must be 
 	 * collected, before putting out the request batch (if at least one 
@@ -105,7 +105,7 @@ public class BatchController implements OutputStrategyInterface {
 	 * @see #requestBatch
 	 */
 	private int neededChannelEstablishMessages;
-	
+
 	/**
 	 * Minimum number of <code>ForwardChannelMessage</code>s that must be 
 	 * collected, before putting out the request batch. Will be adjusted 
@@ -114,7 +114,7 @@ public class BatchController implements OutputStrategyInterface {
 	 * @see #requestBatch
 	 */
 	private int neededForwardChannelMessages = 0;
-	
+
 	/**
 	 * Number of <code>ChannelEstablishMessage</code>s currently in request 
 	 * batch.
@@ -122,7 +122,7 @@ public class BatchController implements OutputStrategyInterface {
 	 * @see #neededChannelEstablishMessages
 	 */
 	private int numberOfChannelEstablishMessages = 0;
-	
+
 	/**
 	 * Number of <code>ForwardChannelMessage</code>s currently in request 
 	 * batch.
@@ -130,13 +130,13 @@ public class BatchController implements OutputStrategyInterface {
 	 * @see #neededForwardChannelMessages
 	 */
 	private int numberOfForwardChannelMessages = 0;
-	
+
 	/**
 	 * Number of <code>ChannelReleaseMessage</code>s currently in request 
 	 * batch.
 	 */
 	private int numberOfChannelReleaseMessages = 0;
-	
+
 	/**
 	 * Generates a new <code>OutputStrategy</code> component, which collects 
 	 * messages until an output criterion is fulfilled (certain number of 
@@ -155,28 +155,28 @@ public class BatchController implements OutputStrategyInterface {
 	 * @see #initialize(BatchController)
 	 */
 	public BatchController() {
-		
+
 		this.BELONGS_TO_LAST_MIX = 
 			(new Integer(getProperty("NUMBER_OF_FURTHER_MIXES")) == 0)
 			? true 
-			: false;
-		
+					: false;
+
 		this.BELONGS_TO_FIRST_MIX = 
 			(new Integer(getProperty("NUMBER_OF_PREVIOUS_MIXES")) == 0)
 			? true 
-			: false;
-		
+					: false;
+
 		this.INITIAL_BUFFER_SIZE = 
 			new Integer(getProperty("INITIAL_BUFFER_SIZE"));
-		
+
 		this.neededChannelEstablishMessages = 
 			new Integer(getProperty("NEEDED_CHANNEL_ESTABLISH_MESSAGES"));
-		
+
 		this.TIMEOUT = new Long(getProperty("BATCH_TIMEOUT"));
-		
+
 	}
-	
-	
+
+
 	/**
 	 * Initialization method for this component. Makes this component ready 
 	 * for accepting messages.
@@ -186,126 +186,141 @@ public class BatchController implements OutputStrategyInterface {
 	 * 								send messages after output).
 	 */
 	public void initialize(InputOutputHandlerController inputOutputHandler) {
-		
+
 		LOGGER.fine("Batchcontroller... initializing");
-		
+
 		this.inputOutputHandler = inputOutputHandler;
-		
+
 		this.requestBatch = 
 			new Batch(	INITIAL_BUFFER_SIZE, 
-						true,
-						BELONGS_TO_LAST_MIX,
-						inputOutputHandler
-						);
-				
+					true,
+					BELONGS_TO_LAST_MIX,
+					inputOutputHandler
+			);
+
 		this.replyBatch = 
 			new Batch(	INITIAL_BUFFER_SIZE, 
-						false,
-						BELONGS_TO_LAST_MIX,
-						inputOutputHandler
-						);
-	
+					false,
+					BELONGS_TO_LAST_MIX,
+					inputOutputHandler
+			);
+
 	}
 
+	
+	/**
+	 * Can be used to add a <code>Request</code>, that shall be put out 
+	 * according to the underlying output strategy.
+	 * <p>
+	 * Return immediately (asynchronous behavior), internal output 
+	 * decision is deferred.
+	 * 
+	 * @param request	<code>Request</code>, that shall be put out according 
+	 * 					to the underlying output strategy.
+	 * 					A special <code>Request</code> is the <code>
+	 * 					BatchSizeMessage</code>, which contains the number of
+	 * 					messages of the upcoming batch (according to the
+	 * 					mix' predecessor). This message is used for batch
+	 * 					synchronization.
+	 * 
+	 * @see message.BatchSizeMessage
+	 */
 	@Override
 	public void addRequest(Request request) {
 
-		synchronized (requestBatch) {
-			
-			User channel = request.getChannel();
-			
-			// indicate that a message for this channel has been added to the 
-			// current batch
-			channel.setHasMessageInCurrentBatch(true);
-			requestBatch.addMessage((Message)request);
-			
-			// increment suiting message-counter
-			if (request instanceof ChannelEstablishMessage) {
-				
-				numberOfChannelEstablishMessages++;
-				
-			} else if (request instanceof ChannelMessage) {
-				
-				numberOfForwardChannelMessages++;
-				
-			} else { // ChannelReleaseMessage
-				
-				numberOfChannelReleaseMessages++;
-				neededForwardChannelMessages--;
-				
-			}
+		if (request instanceof BatchSizeMessage)
 
-			if (requestBatch.size() == 1) { // first message of batch
-				
-				requestTimeoutTimer = new Timer();
-				
-				requestTimeoutTimer.schedule(	new BatchOutputTask(requestBatch), 
-												TIMEOUT
-												);
-				
-			}
-			
-			if (isOutputCriterionForRequestBatchFulfilled()) {
-
-				requestTimeoutTimer.cancel();
-				putOutRequestBatch();
-					
-			}
-			
+		{
+			this.batchSize =  ((BatchSizeMessage) request).getBatchSize();
 		}
-		
+
+		else
+
+		{
+
+			synchronized (requestBatch) {
+
+				User channel = request.getChannel();
+
+				// indicate that a message for this channel has been added to the 
+				// current batch
+				channel.setHasMessageInCurrentBatch(true);
+				requestBatch.addMessage((Message)request);
+
+				// increment suiting message-counter
+				if (request instanceof ChannelEstablishMessage) {
+
+					numberOfChannelEstablishMessages++;
+
+				} else if (request instanceof ChannelMessage) {
+
+					numberOfForwardChannelMessages++;
+
+				} else { // ChannelReleaseMessage
+
+					numberOfChannelReleaseMessages++;
+					neededForwardChannelMessages--;
+
+				}
+
+				if (requestBatch.size() == 1) { // first message of batch
+
+					requestTimeoutTimer = new Timer();
+
+					requestTimeoutTimer.schedule(	new BatchOutputTask(requestBatch), 
+							TIMEOUT
+					);
+
+				}
+
+				if (isOutputCriterionForRequestBatchFulfilled()) {
+
+					requestTimeoutTimer.cancel();
+					putOutRequestBatch();
+
+				}
+
+			}
+
+		}
+
 	}
 
 	@Override
 	public void addReply(Reply reply) {
 
 		synchronized (replyBatch) {
-			
+
 			User channel = reply.getChannel();
 			isReplyBatchPending = false;
-			
+
 			// indicate that a message for this channel has been added to the 
 			// current batch
 			channel.setHasMessageInCurrentReplyBatch(true);
 			replyBatch.addMessage((Message) reply);
-			
+
 			if (replyBatch.size() == 1) { // first message of batch
-				
+
 				replyTimeoutTimer = new Timer();
-				
+
 				replyTimeoutTimer.schedule(	new BatchOutputTask(replyBatch), 
-												TIMEOUT
-												);
-				
+						TIMEOUT
+				);
+
 			}
-			
+
 			if (isOutputCriterionForReplyBatchFulfilled()) {
 
 				replyTimeoutTimer.cancel();
 				putOutReplyBatch();
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
-	
-	/** 
-	 * Number of messages the upcoming batch will contain (according to the 
-	 * <code>OutputStrategy</code> component on this mix' predecessor).
-	 * <p>
-	 * Used for batch synchronization.
-	 * 
-	 * @see message.BatchSizeMessage
-	 */
-	public void setBatchSize(int newSize) {
-		
-		this.batchSize = newSize;
-		
-	}
-	
-	
+
+
 	/**
 	 * Indicates whether the output criterion for <code>requestBatch</code> is 
 	 * fulfilled or not.
@@ -314,66 +329,66 @@ public class BatchController implements OutputStrategyInterface {
 	 * 			fulfilled or not.
 	 */
 	private boolean isOutputCriterionForRequestBatchFulfilled() {
-		
+
 		if (requestBatch.size() == 0) {
-			
+
 			return false;
-			
+
 		} else {
-			
+
 			if (BELONGS_TO_FIRST_MIX) {
-				
+
 				boolean enoughChannelEstablishMessages = 
 					(	numberOfChannelEstablishMessages == 0
-						||
-						numberOfChannelEstablishMessages >= 
-							neededChannelEstablishMessages)
-					? true 
-					: false;
-				
+							||
+							numberOfChannelEstablishMessages >= 
+								neededChannelEstablishMessages)
+								? true 
+										: false;
+
 				boolean enoughForwardChannelMessages = 
 					(	numberOfForwardChannelMessages >= 
-							neededForwardChannelMessages)
-					? true 
-					: false;
-				
+						neededForwardChannelMessages)
+						? true 
+								: false;
+
 				return (	!isReplyBatchPending
-							&&
-							enoughChannelEstablishMessages
-							&&
-							enoughForwardChannelMessages
-							);
-				
+						&&
+						enoughChannelEstablishMessages
+						&&
+						enoughForwardChannelMessages
+				);
+
 			} else {
-				
+
 				return (	numberOfChannelEstablishMessages 
-							+ 
-							numberOfForwardChannelMessages
-							+ 
-							numberOfChannelReleaseMessages
-							
-						) == batchSize;
-				
+						+ 
+						numberOfForwardChannelMessages
+						+ 
+						numberOfChannelReleaseMessages
+
+				) == batchSize;
+
 			}
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	/**
 	 * Puts out collected messages in <code>replyBatch</code>.
 	 */
 	private void putOutReplyBatch() {
-		
+
 		synchronized (replyBatch) {
-			
+
 			replyBatch.putOutBatch();
-			
+
 		}
-		
+
 	}
-	
+
 	/**
 	 * Indicates whether the output criterion for <code>replyBatch</code> is 
 	 * fulfilled or not.
@@ -382,76 +397,76 @@ public class BatchController implements OutputStrategyInterface {
 	 * 			fulfilled or not.
 	 */
 	private boolean isOutputCriterionForReplyBatchFulfilled() {
-		
+
 		if (replyBatch.size() == 0) {
-			
+
 			return false;
-			
+
 		} else {
-			
+
 			return (replyBatch.size() >= neededReplyMessages);
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	/**
 	 * Puts out collected messages in <code>requestBatch</code> and prepares 
 	 * variables for next batch.
 	 */
 	private void putOutRequestBatch() {
-		
+
 		synchronized (requestBatch) {
-			
+
 			if (!BELONGS_TO_LAST_MIX) {
 				// send BatchSizeMessage to next mix for batch synchronization
-				
+
 				int batchSizeForNextMix = 
 					numberOfForwardChannelMessages
 					+ numberOfChannelEstablishMessages
 					+ numberOfChannelReleaseMessages;
-				
+
 				BatchSizeMessage batchSizeMessage = 
 					new BatchSizeMessage(batchSizeForNextMix);
-				
+
 				inputOutputHandler.
-						addRequest(batchSizeMessage);
-				
+				addRequest(batchSizeMessage);
+
 			}
-			
+
 			if (BELONGS_TO_FIRST_MIX) {
-				
+
 				// calculate (expected) number of messages for next batch
 				neededForwardChannelMessages = 
 					neededForwardChannelMessages
 					+ numberOfChannelEstablishMessages
 					- numberOfChannelReleaseMessages;
-				
+
 				neededReplyMessages = neededForwardChannelMessages;
-				
+
 			} else { // not first mix
-				
+
 				neededReplyMessages = 
 					batchSize - numberOfChannelReleaseMessages;
-				
+
 			}
-			
+
 			// reset message counters
 			numberOfChannelEstablishMessages = 0;
 			numberOfForwardChannelMessages = 0;
 			numberOfChannelReleaseMessages = 0;
-			
-			isReplyBatchPending = true;
-			
-			requestBatch.putOutBatch();
-			
-		}
-		
-	}
-	
 
-	
+			isReplyBatchPending = true;
+
+			requestBatch.putOutBatch();
+
+		}
+
+	}
+
+
+
 	/**
 	 * Simply used to shorten method calls (calls 
 	 * <code>internalInformationPort.getProperty(key)</code>). Returns the 
@@ -462,12 +477,12 @@ public class BatchController implements OutputStrategyInterface {
 	 * @return		The property with the specified key in the property file.
 	 */
 	private static String getProperty(String key) {
-		
+
 		return internalInformationPort.getProperty(key);
-		
+
 	}
-	
-	
+
+
 	/**
 	 * Simple <code>TimerTask</code>, which puts out the batch it is linked to.
 	 * 
@@ -481,8 +496,8 @@ public class BatchController implements OutputStrategyInterface {
 		 * <code>replyBatch</code>).
 		 */
 		private boolean isRequestTimer;
-		
-		
+
+
 		/**
 		 * Creates a new <code>OutputTask</code> for the specified 
 		 * <code>Batch</code>.
@@ -490,35 +505,34 @@ public class BatchController implements OutputStrategyInterface {
 		 * @param batch	<code>Batch</code> that shall be put out.
 		 */
 		protected BatchOutputTask(Batch batch) {
-			
+
 			isRequestTimer = (batch == requestBatch) ? true : false;
-			
+
 		}
-		
-		
+
+
 		/**
 		 * Puts out the batch it is linked to.
 		 */
 		@Override 
 		public void run() {
-			
+
 			if (isRequestTimer) {
-				
+
 				LOGGER.fine("(MessageBuffer) Request-Timeout reached!");
 				requestTimeoutTimer.cancel();
 				putOutRequestBatch();
-				
+
 			} else {
-				
+
 				LOGGER.fine("(MessageBuffer) Reply-Timeout reached!");
 				replyTimeoutTimer.cancel();
 				putOutReplyBatch();
-				
+
 			}
-			
+
 		}
-		
+
 	}
-	
 
 }

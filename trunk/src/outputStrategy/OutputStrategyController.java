@@ -1,7 +1,10 @@
 package outputStrategy;
 
 
+import java.util.logging.Logger;
+
 import inputOutputHandler.InputOutputHandlerController;
+import internalInformationPort.InternalInformationPortController;
 import message.Reply;
 import message.Request;
 import architectureInterface.OutputStrategyInterface;
@@ -25,6 +28,15 @@ public class OutputStrategyController implements OutputStrategyInterface {
 	//TODO: Beschreibung hinzufügen; hier kann später auch eine andere Klasse eingebunden werden
 	private BatchController batchController;
 	
+	/** 
+	 * Reference on component <code>InternalInformationPort</code>. 
+	 * Used to display and/or log data and read general settings.
+	 */
+	private static InternalInformationPortController internalInformationPort = 
+		new InternalInformationPortController();
+	
+	/** Logger used to log and display information. */
+	private final static Logger LOGGER = internalInformationPort.getLogger();
 	
 	/**
 	 * Initialization method for this component. Makes this component ready 
@@ -35,13 +47,12 @@ public class OutputStrategyController implements OutputStrategyInterface {
 	 * 								send messages after output).
 	 */
 	public void initialize(InputOutputHandlerController inputOutputHandler) {
-		//TODO: get info about inputoutputHandler
-		System.out.println(inputOutputHandler.toString());
 		
 		batchController = new BatchController();
 		
 		batchController.initialize(inputOutputHandler);
-		System.out.println("Batchcontroller... initialized");
+		LOGGER.fine("Batchcontroller... initialized");
+		
 	}
 
 	
@@ -75,25 +86,5 @@ public class OutputStrategyController implements OutputStrategyInterface {
 	public void addReply(Reply reply) {
 		batchController.addReply(reply);
 	}
-	
-	
-	/** 
-	 * Used by 
-	 * <code>PreviousMixConnectionHandler</code> component to change the batch size.
-	 * <p>
-	 * Only relevant for batch output.
-	 * 
-	 * @see message.BatchSizeMessage
-	 */
-	public void setBatchSize(int newSize) {
-		//TODO: check whether batch is used
-		
-		//Mix kann Nachricht auch mit normalem "normaler" Message an den nächsten Mix schicken.
-		
-		batchController.setBatchSize(newSize);
-		//this.batchSize = newSize;
-		
-	}
-
 	
 }
