@@ -28,12 +28,11 @@ final class Settings {
     	
     	try {
     		
-    		//TODO: path specification
-			properties.load(new FileInputStream("/Users/daniel/Programmierung/Master/mixPlatform/bin/Properties.txt"));
+    		//TODO: path specification --> property file has to be in "upper directory" ("working directory" under "run configurations")
+			properties.load(new FileInputStream("Properties.txt")); // /Users/daniel/Programmierung/Master/mixPlatform/bin/
 			
 		} catch(IOException e) {
 			
-			//TODO: path specification
 			//when properties could not be loaded, there is no way to use the logger as it is not instantiated...
 			System.out.println("Property file could not be loaded! "
 							+e.getMessage()

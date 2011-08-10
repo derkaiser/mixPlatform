@@ -36,10 +36,10 @@ final class Settings {
     	
     	try{
     		
-    		//TODO: path specification
+    		//TODO: path specification --> see other Setting.java file
 			properties.load(
 					new FileInputStream(
-							"/Users/daniel/Programmierung/Master/mixPlatform/bin/TestEnvironmentProperties.txt"
+							"TestEnvironmentProperties.txt" // /Users/daniel/Programmierung/Master/mixPlatform/bin/
 							)
 					);
 			
