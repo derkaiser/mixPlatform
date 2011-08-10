@@ -154,11 +154,7 @@ final class ReplyDecision {
 		CIPHER_BLOCK_SIZE = 
 			new Integer(getProperty("SYMMETRIC_CYPHER_BLOCK_SIZE"));
 		
-		//TODO: where is G?
-		
-		//g = new Double(getProperty("G"));
-		g = 1.0;
-
+		g = new Double(getProperty("G"));
 	}
 	
 	

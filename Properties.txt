@@ -124,12 +124,12 @@ VOLUME_DECISSION_CHECK_RATE = 100
 VOLUME_DECISSION_TIMEOUT = 2000
 #
 #
-# ALPHA
+# G
 # Tradeoff-indicator between padding and the total amount of data (available),
 # actually sent. "0.0" means "don't allow padding", "1.0" means "send all data
 # available, no matter how much padding is necessary" and "0.5" means an 
 # "equilibrated proportion". Any value between "0.0" and "1.0" is possible. 
-ALPHA = 1.0
+G = 1.0
 #
 #
 # MIN_VOLUME_PER_CHANNEL
