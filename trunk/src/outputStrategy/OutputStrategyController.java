@@ -98,5 +98,12 @@ public class OutputStrategyController implements OutputStrategyInterface {
 	public void addReply(Reply reply) {
 		outputStrategyIF.addReply(reply);
 	}
+
+
+	@Override
+	public void initialize() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }
