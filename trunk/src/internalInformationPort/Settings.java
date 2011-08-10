@@ -117,13 +117,8 @@ final class Settings {
 					properties.getProperty("INTER_MIX_CRYPTOGRAPHY_ALGORITHM"), 
 					properties.getProperty("CRYPTO_PROVIDER")
 					);
-			
-			System.out.println("OK");
-			
-			int interMixBlockSize = tempCipher.getBlockSize();
-			
 
-			
+			int interMixBlockSize = tempCipher.getBlockSize();
 			tempCipher = null;
 			
 			properties.setProperty(	"INTER_MIX_BLOCK_SIZE", 
