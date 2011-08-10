@@ -59,7 +59,7 @@ final class Batch {
 	
 	
 	/**
-	 * Constructs a new <code>Batch</code> that can be used to stores processed 
+	 * Constructs a new <code>Batch</code> that can be used to store processed 
 	 * messages until output is requested (see <code>putOutBatch()</code>). 
 	 * 
 	 * @param initialMessageBufferSize		Initial size for the data structure 
