@@ -88,6 +88,8 @@ public class OutputStrategyController implements OutputStrategyInterface {
 	public void setBatchSize(int newSize) {
 		//TODO: check whether batch is used
 		
+		//Mix kann Nachricht auch mit normalem "normaler" Message an den nächsten Mix schicken.
+		
 		batchController.setBatchSize(newSize);
 		//this.batchSize = newSize;
 		
