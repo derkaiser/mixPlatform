@@ -99,9 +99,6 @@ public class OutputStrategyController implements OutputStrategyInterface {
 		outputStrategyIF.addReply(reply);
 	}
 <<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> trunk
 
 
 	@Override
@@ -109,10 +106,7 @@ public class OutputStrategyController implements OutputStrategyInterface {
 		// TODO Auto-generated method stub
 		
 	}
-<<<<<<< HEAD
-=======
 =======
 >>>>>>> fbcffc0dcadbd6a806bdb6cad975b7e538e71f94
->>>>>>> trunk
 	
 }
