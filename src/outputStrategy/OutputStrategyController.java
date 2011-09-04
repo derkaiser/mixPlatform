@@ -1,10 +1,7 @@
 package outputStrategy;
 
 
-import java.util.logging.Logger;
-import ifaceloading.OutputStrategyLoader;
 import inputOutputHandler.InputOutputHandlerController;
-import internalInformationPort.InternalInformationPortController;
 import message.Reply;
 import message.Request;
 import architectureInterface.OutputStrategyInterface;
@@ -35,15 +32,6 @@ public class OutputStrategyController implements OutputStrategyInterface {
 	 */
 	private InputOutputHandlerController inputOutputHandler;
 	
-	/** 
-	 * Reference on component <code>InternalInformationPort</code>. 
-	 * Used to display and/or log data and read general settings.
-	 */
-	private static InternalInformationPortController internalInformationPort = 
-		new InternalInformationPortController();
-	
-	/** Logger used to log and display information. */
-	private final static Logger LOGGER = internalInformationPort.getLogger();
 	
 	/**
 	 * Initialization method for this component. Makes this component ready 
@@ -54,6 +42,8 @@ public class OutputStrategyController implements OutputStrategyInterface {
 	 * 								send messages after output).
 	 */
 	public void initialize(InputOutputHandlerController inputOutputHandler) {
+		//TODO: get info about inputoutputHandler
+		System.out.println(inputOutputHandler.toString());
 		
 		//TODO: relativen Pfad einführen
 		outputStrategyIF = OutputStrategyLoader.getClass( "/Users/daniel/Programmierung/Master/mixPlatformComponents/bin/", "outputStrategy.BatchController" );
@@ -61,9 +51,6 @@ public class OutputStrategyController implements OutputStrategyInterface {
 		//batchController = new BatchController();
 		
 		this.inputOutputHandler = inputOutputHandler;
-		
-		outputStrategyIF.initialize();
-		LOGGER.fine("Controller... initialized");
 		
 	}
 
